@@ -24,7 +24,7 @@ export async function generateHTML(data: any[]): Promise<string> {
     `;
   });
   html += /*html*/`
-        <form action="/">
+        <form action="/homepage">
           <button type="submit">Back to Homepage</button>
         </form>
       </ul>

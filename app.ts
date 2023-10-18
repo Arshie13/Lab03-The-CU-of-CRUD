@@ -18,6 +18,10 @@ const pool = new Pool({
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (request: express.Request, response: express.Response) => {
+  response.sendFile(path.join(__dirname, 'public/page.html'))
+})
+
+app.get('/homepage', (request: express.Request, response: express.Response) => {
   response.sendFile(path.join(__dirname, 'public/homepage.html'))
 });
 
@@ -67,7 +71,7 @@ app.get('/show-patients', async (request: express.Request, response: express.Res
 app.post('/update-patient', (request: express.Request, response: express.Response) => {
   try {
     response.sendFile(path.join(__dirname, 'public/editPatient.html'))
-  }catch (error) {
+  } catch (error) {
     console.error('error: ', error)
     response.status(500).send('Internal server error')
   }
@@ -75,10 +79,28 @@ app.post('/update-patient', (request: express.Request, response: express.Respons
 
 app.get('/update-patient-status', async (request: express.Request, response: express.Response) => {
   try {
-    const { token, status } = request.body
+    const { token, status } = request.query
     const client = await pool.connect()
     await client.query('UPDATE test SET status = $1 WHERE token = $2', [status, token])
-    response.redirect(`/show-patients`)
+    const html = /*html*/`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Success</title>
+      </head>
+      <body>
+        <h1>Status has been updated</h1>
+        <br>
+        <h2>the token is ${token}</h2>
+        <form action="/homepage" method="GET">
+          <button type="submit">Back to homepage</button>
+        </form>
+      </body>
+      </html>
+    `
+    response.send(html)
 
   } catch (error) {
     console.error('error: ', error)
