@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Display Patients</title>
+  </head>
+  <body>
+    <h1>Display Patients</h1>
+    <form action="/update-patient-status" method="GET">
+      <label for="token">Token:</label>
+      <input type="text" id="token" name="token"><br>
+      <label for="update">Update Status</label>
+      <select name="update-status" id="status">
+        <option value="cured">cured</option>
+        <option value="sick">sick</option>
+      </select>
+      <br><br>
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
