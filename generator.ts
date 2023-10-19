@@ -18,6 +18,7 @@ export async function generateHTML(data: any[]): Promise<string> {
         <li>Species: ${item.species}</li>
         <li>Age: ${item.age}</li>
         <li>Date Admitted: ${item.created_at}</li>
+        <li>Date Updated: ${item.updated_at}</li>
         <li>Status: ${item.status}</li>
         <li>Token: ${item.token}</li>
         <br> <br>

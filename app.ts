@@ -1,4 +1,4 @@
-import express, { request } from 'express';
+import express from 'express';
 import path from 'path'
 import { Pool } from 'pg'
 import { generateHTML } from './generator';
@@ -46,7 +46,6 @@ app.post('/submit', async (request: express.Request, response: express.Response)
     const result = await client.query(selectQuery)
     const data = result.rows
     const html = await generateHTML(data)
-    client.release()
     console.log('success')
     response.send(html)
   } catch (error) {
@@ -80,28 +79,18 @@ app.post('/update-patient', (request: express.Request, response: express.Respons
 app.get('/update-patient-status', async (request: express.Request, response: express.Response) => {
   try {
     const { token, status } = request.query
+    const updateDate = new Date(Date.now())
+    const values = [token, status, updateDate]
     const client = await pool.connect()
-    await client.query('UPDATE test SET status = $1 WHERE token = $2', [status, token])
-    const html = /*html*/`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Success</title>
-      </head>
-      <body>
-        <h1>Status has been updated</h1>
-        <br>
-        <h2>the token is ${token}</h2>
-        <form action="/homepage" method="GET">
-          <button type="submit">Back to homepage</button>
-        </form>
-      </body>
-      </html>
-    `
-    response.send(html)
-
+    await client.query(`
+    UPDATE test 
+    SET status = $2, 
+    updated_at = $3 
+    WHERE token = $1
+    RETURNING *
+    `, values)
+    console.log('success')
+    response.redirect('/show-patients')
   } catch (error) {
     console.error('error: ', error)
     response.status(500).send('Internal server error')
@@ -111,5 +100,3 @@ app.get('/update-patient-status', async (request: express.Request, response: exp
 app.listen(PORT, () => {
   console.log(`its alive on http://localhost:${PORT}`)
 })
-
-//note for tomorrow: add feature where at status update, it also edits the updated_at column.
